@@ -1617,6 +1617,7 @@ void mt7915_mac_reset_work(struct work_struct *work)
 		return;
 
 	if (mtk_wed_device_active(&dev->mt76.mmio.wed)) {
+		printk(KERN_INFO "MT76-1: mtk_wed_device_active=%s", mtk_wed_device_active(&dev->mt76.mmio.wed) ? "true" : "false");
 		mtk_wed_device_stop(&dev->mt76.mmio.wed);
 		if (!is_mt7986(&dev->mt76))
 			mt76_wr(dev, MT_INT_WED_MASK_CSR, 0);

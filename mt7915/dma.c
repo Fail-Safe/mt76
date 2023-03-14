@@ -379,7 +379,9 @@ static int mt7915_dma_enable(struct mt7915_dev *dev)
 		if (ret)
 			return ret;
 
+		printk(KERN_INFO "MT76-2: mtk_wed_device_active=%s", mtk_wed_device_active(&dev->mt76.mmio.wed) ? "true" : "false");
 		mtk_wed_device_start(&dev->mt76.mmio.wed, wed_irq_mask);
+		printk(KERN_INFO "MT76-3: mtk_wed_device_active=%s", mtk_wed_device_active(&dev->mt76.mmio.wed) ? "true" : "false");
 	}
 
 	mt7915_irq_enable(dev, irq_mask);
