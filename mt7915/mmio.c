@@ -574,8 +574,7 @@ static int mt7915_mmio_wed_offload_enable(struct mtk_wed_device *wed)
 
 	// MWB
 	dev_info(dev->mt76.dev,
-			 "%s indicated WED offload enable\n",
-			 wiphy_name(dev->mt76.hw->wiphy));
+			 "WED offload enable\n");
 
 	return 0;
 }
@@ -604,8 +603,7 @@ static void mt7915_mmio_wed_offload_disable(struct mtk_wed_device *wed)
 
 	// MWB
 	dev_info(dev->mt76.dev,
-			 "%s indicated WED offload disable\n",
-			 wiphy_name(dev->mt76.hw->wiphy));
+			 "WED offload disable\n");
 }
 
 static void mt7915_mmio_wed_release_rx_buf(struct mtk_wed_device *wed)
@@ -632,8 +630,7 @@ static void mt7915_mmio_wed_release_rx_buf(struct mtk_wed_device *wed)
 
 	// MWB
 	dev_info(dev->mt76.dev,
-			 "%s indicated WED release rx buff\n",
-			 wiphy_name(dev->mt76.hw->wiphy));
+			 "WED release rx buff\n");
 }
 
 static u32 mt7915_mmio_wed_init_rx_buf(struct mtk_wed_device *wed, int size)
@@ -683,8 +680,7 @@ static u32 mt7915_mmio_wed_init_rx_buf(struct mtk_wed_device *wed, int size)
 
 	// MWB
 	dev_info(dev->mt76.dev,
-			 "%s indicated WED init rx buf\n",
-			 wiphy_name(dev->mt76.hw->wiphy));
+			 "WED init rx buf\n");
 
 	return 0;
 
@@ -722,8 +718,7 @@ static void mt7915_mmio_wed_update_rx_stats(struct mtk_wed_device *wed,
 
 	// MWB
 	dev_info(dev->mt76.dev,
-			 "%s indicated WED update rx stats\n",
-			 wiphy_name(dev->mt76.hw->wiphy));
+			 "WED update rx stats\n");
 }
 
 static int mt7915_mmio_wed_reset(struct mtk_wed_device *wed)
@@ -739,8 +734,7 @@ static int mt7915_mmio_wed_reset(struct mtk_wed_device *wed)
 	{
 		// MWB
 		dev_info(dev->mt76.dev,
-				 "%s indicated WED reset 1\n",
-				 wiphy_name(dev->mt76.hw->wiphy));
+				 "WED reset 1\n");
 		return -EBUSY;
 	}
 
@@ -761,8 +755,7 @@ out:
 
 	// MWB
 	dev_info(dev->mt76.dev,
-			 "%s indicated WED reset 2\n",
-			 wiphy_name(dev->mt76.hw->wiphy));
+			 "WED reset 2\n");
 
 	return ret;
 }
@@ -774,9 +767,7 @@ static void mt7915_mmio_wed_reset_complete(struct mtk_wed_device *wed)
 	complete(&dev->mmio.wed_reset_complete);
 
 	// MWB
-	dev_info(dev->mt76.dev,
-			 "%s indicated WED reset complete\n",
-			 wiphy_name(dev->mt76.hw->wiphy));
+	dev_info(dev->mt76.dev, "WED reset complete\n");
 }
 #endif
 
@@ -790,9 +781,7 @@ int mt7915_mmio_wed_init(struct mt7915_dev *dev, void *pdev_ptr,
 	if (!wed_enable)
 	{
 		// MWB
-		dev_info(dev->mt76.dev,
-				 "%s indicated WED init 1\n",
-				 wiphy_name(dev->mt76.hw->wiphy));
+		dev_info(dev->mt76.dev, "WED init 1\n");
 		return 0;
 	}
 
@@ -883,8 +872,7 @@ int mt7915_mmio_wed_init(struct mt7915_dev *dev, void *pdev_ptr,
 	{
 		// MWB
 		dev_info(dev->mt76.dev,
-				 "%s indicated WED init 2\n",
-				 wiphy_name(dev->mt76.hw->wiphy));
+				 "WED init 2\n");
 		return 0;
 	}
 

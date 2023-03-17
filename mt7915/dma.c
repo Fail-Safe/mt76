@@ -406,7 +406,7 @@ static int mt7915_dma_enable(struct mt7915_dev *dev)
 		mtk_wed_device_start(&dev->mt76.mmio.wed, wed_irq_mask);
 		// MWB
 		dev_info(dev->mt76.dev,
-				 "%s indicated WED start at IRQ mask %s\n",
+				 "%s indicated WED start at IRQ mask %i\n",
 				 wiphy_name(dev->mt76.hw->wiphy), wed_irq_mask);
 	}
 
