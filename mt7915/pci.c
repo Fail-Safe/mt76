@@ -17,15 +17,15 @@ static DEFINE_SPINLOCK(hif_lock);
 static u32 hif_idx;
 
 static const struct pci_device_id mt7915_pci_device_table[] = {
-	{ PCI_DEVICE(PCI_VENDOR_ID_MEDIATEK, 0x7915) },
-	{ PCI_DEVICE(PCI_VENDOR_ID_MEDIATEK, 0x7906) },
-	{ },
+	{PCI_DEVICE(PCI_VENDOR_ID_MEDIATEK, 0x7915)},
+	{PCI_DEVICE(PCI_VENDOR_ID_MEDIATEK, 0x7906)},
+	{},
 };
 
 static const struct pci_device_id mt7915_hif_device_table[] = {
-	{ PCI_DEVICE(PCI_VENDOR_ID_MEDIATEK, 0x7916) },
-	{ PCI_DEVICE(PCI_VENDOR_ID_MEDIATEK, 0x790a) },
-	{ },
+	{PCI_DEVICE(PCI_VENDOR_ID_MEDIATEK, 0x7916)},
+	{PCI_DEVICE(PCI_VENDOR_ID_MEDIATEK, 0x790a)},
+	{},
 };
 
 static struct mt7915_hif *mt7915_pci_get_hif2(u32 idx)
@@ -35,7 +35,8 @@ static struct mt7915_hif *mt7915_pci_get_hif2(u32 idx)
 
 	spin_lock_bh(&hif_lock);
 
-	list_for_each_entry(hif, &hif_list, list) {
+	list_for_each_entry(hif, &hif_list, list)
+	{
 		val = readl(hif->regs + MT_PCIE_RECOG_ID);
 		val &= MT_PCIE_RECOG_ID_MASK;
 		if (val != idx)
@@ -67,7 +68,8 @@ static struct mt7915_hif *mt7915_pci_init_hif2(struct pci_dev *pdev)
 	hif_idx++;
 
 	tmp_pdev = pci_get_device(PCI_VENDOR_ID_MEDIATEK, 0x7916, NULL);
-	if (!tmp_pdev) {
+	if (!tmp_pdev)
+	{
 		tmp_pdev = pci_get_device(PCI_VENDOR_ID_MEDIATEK, 0x790a, NULL);
 		if (!tmp_pdev)
 			return NULL;
@@ -75,7 +77,7 @@ static struct mt7915_hif *mt7915_pci_init_hif2(struct pci_dev *pdev)
 	pci_dev_put(tmp_pdev);
 
 	writel(hif_idx | MT_PCIE_RECOG_ID_SEM,
-	       pcim_iomap_table(pdev)[0] + MT_PCIE_RECOG_ID);
+		   pcim_iomap_table(pdev)[0] + MT_PCIE_RECOG_ID);
 
 	return mt7915_pci_get_hif2(hif_idx);
 }
@@ -100,7 +102,7 @@ static int mt7915_pci_hif2_probe(struct pci_dev *pdev)
 }
 
 static int mt7915_pci_probe(struct pci_dev *pdev,
-			    const struct pci_device_id *id)
+							const struct pci_device_id *id)
 {
 	struct mt7915_hif *hif2 = NULL;
 	struct mt7915_dev *dev;
@@ -128,7 +130,7 @@ static int mt7915_pci_probe(struct pci_dev *pdev,
 		return mt7915_pci_hif2_probe(pdev);
 
 	dev = mt7915_mmio_probe(&pdev->dev, pcim_iomap_table(pdev)[0],
-				id->device);
+							id->device);
 	if (IS_ERR(dev))
 		return PTR_ERR(dev);
 
@@ -140,7 +142,8 @@ static int mt7915_pci_probe(struct pci_dev *pdev,
 	if (ret < 0)
 		goto free_wed_or_irq_vector;
 
-	if (!ret) {
+	if (!ret)
+	{
 		hif2 = mt7915_pci_init_hif2(pdev);
 
 		ret = pci_alloc_irq_vectors(pdev, 1, 1, PCI_IRQ_ALL_TYPES);
@@ -151,14 +154,15 @@ static int mt7915_pci_probe(struct pci_dev *pdev,
 	}
 
 	ret = devm_request_irq(mdev->dev, irq, mt7915_irq_handler,
-			       IRQF_SHARED, KBUILD_MODNAME, dev);
+						   IRQF_SHARED, KBUILD_MODNAME, dev);
 	if (ret)
 		goto free_wed_or_irq_vector;
 
 	/* master switch of PCIe tnterrupt enable */
 	mt76_wr(dev, MT_PCIE_MAC_INT_ENABLE, 0xff);
 
-	if (hif2) {
+	if (hif2)
+	{
 		dev->hif2 = hif2;
 
 		mt76_wr(dev, MT_INT1_MASK_CSR, 0);
@@ -169,8 +173,8 @@ static int mt7915_pci_probe(struct pci_dev *pdev,
 			mt76_wr(dev, MT_PCIE1_MAC_INT_ENABLE_MT7916, 0xff);
 
 		ret = devm_request_irq(mdev->dev, dev->hif2->irq,
-				       mt7915_irq_handler, IRQF_SHARED,
-				       KBUILD_MODNAME "-hif", dev);
+							   mt7915_irq_handler, IRQF_SHARED,
+							   KBUILD_MODNAME "-hif", dev);
 		if (ret)
 			goto free_hif2;
 	}
@@ -190,7 +194,13 @@ free_hif2:
 	devm_free_irq(mdev->dev, irq, dev);
 free_wed_or_irq_vector:
 	if (mtk_wed_device_active(&mdev->mmio.wed))
+	{
 		mtk_wed_device_detach(&mdev->mmio.wed);
+		// MWB
+		dev_info(dev->mt76.dev,
+				 "%s indicated WED device_attach 1\n",
+				 wiphy_name(dev->mt76.hw->wiphy));
+	}
 	else
 		pci_free_irq_vectors(pdev);
 free_device:
@@ -218,17 +228,17 @@ static void mt7915_pci_remove(struct pci_dev *pdev)
 }
 
 struct pci_driver mt7915_hif_driver = {
-	.name		= KBUILD_MODNAME "_hif",
-	.id_table	= mt7915_hif_device_table,
-	.probe		= mt7915_pci_probe,
-	.remove		= mt7915_hif_remove,
+	.name = KBUILD_MODNAME "_hif",
+	.id_table = mt7915_hif_device_table,
+	.probe = mt7915_pci_probe,
+	.remove = mt7915_hif_remove,
 };
 
 struct pci_driver mt7915_pci_driver = {
-	.name		= KBUILD_MODNAME,
-	.id_table	= mt7915_pci_device_table,
-	.probe		= mt7915_pci_probe,
-	.remove		= mt7915_pci_remove,
+	.name = KBUILD_MODNAME,
+	.id_table = mt7915_pci_device_table,
+	.probe = mt7915_pci_probe,
+	.remove = mt7915_pci_remove,
 };
 
 MODULE_DEVICE_TABLE(pci, mt7915_pci_device_table);
