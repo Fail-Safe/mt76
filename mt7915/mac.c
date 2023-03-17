@@ -280,9 +280,8 @@ mt7915_wed_check_ppe(struct mt7915_dev *dev, struct mt76_queue *q,
 							 FIELD_GET(MT_DMA_PPE_CPU_REASON, info),
 							 FIELD_GET(MT_DMA_PPE_ENTRY, info));
 	// MWB
-	dev_info(dev->mt76.dev,
-			 "%s indicated WED device_ppe_check\n",
-			 wiphy_name(dev->mt76.hw->wiphy));
+	dev_info(dev->dev,
+			 "WED device_ppe_check\n");
 }
 
 /* Requirement: must be called under RCU read lock */
@@ -1684,9 +1683,8 @@ void mt7915_mac_reset_work(struct work_struct *work)
 	{
 		mtk_wed_device_stop(&dev->mt76.mmio.wed);
 		// MWB
-		dev_info(dev->mt76.dev,
-				 "%s indicated WED device stop\n",
-				 wiphy_name(dev->mt76.hw->wiphy));
+		dev_info(dev->dev,
+				 "WED device stop\n");
 		if (!is_mt7986(&dev->mt76))
 			mt76_wr(dev, MT_INT_WED_MASK_CSR, 0);
 	}

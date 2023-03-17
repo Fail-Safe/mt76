@@ -197,9 +197,8 @@ free_wed_or_irq_vector:
 	{
 		mtk_wed_device_detach(&mdev->mmio.wed);
 		// MWB
-		dev_info(dev->mt76.dev,
-				 "%s indicated WED device_attach 1\n",
-				 wiphy_name(dev->mt76.hw->wiphy));
+		dev_info(dev->dev,
+				 "WED device_attach 1\n");
 	}
 	else
 		pci_free_irq_vectors(pdev);

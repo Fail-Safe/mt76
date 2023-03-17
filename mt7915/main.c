@@ -1544,9 +1544,8 @@ mt7915_net_fill_forward_path(struct ieee80211_hw *hw,
 	if (!mtk_wed_device_active(wed))
 	{
 		// MWB
-		dev_info(dev->mt76.dev,
-				 "%s indicated WED device inactive 1\n",
-				 wiphy_name(dev->mt76.hw->wiphy));
+		dev_info(dev->dev,
+				 "WED device inactive 1\n");
 		return -ENODEV;
 	}
 

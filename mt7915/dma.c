@@ -405,9 +405,8 @@ static int mt7915_dma_enable(struct mt7915_dev *dev)
 
 		mtk_wed_device_start(&dev->mt76.mmio.wed, wed_irq_mask);
 		// MWB
-		dev_info(dev->mt76.dev,
-				 "%s indicated WED start at IRQ mask %i\n",
-				 wiphy_name(dev->mt76.hw->wiphy), wed_irq_mask);
+		dev_info(dev->dev,
+				 "WED start at IRQ mask");
 	}
 
 	mt7915_irq_enable(dev, irq_mask);
@@ -629,9 +628,8 @@ mt7915_dma_reset_tx_queue(struct mt7915_dev *dev, struct mt76_queue *q)
 	if (mtk_wed_device_active(&dev->mt76.mmio.wed))
 		mt76_dma_wed_setup(&dev->mt76, q, true);
 	// MWB
-	dev_info(dev->mt76.dev,
-			 "%s indicated WED dma reset 1\n",
-			 wiphy_name(dev->mt76.hw->wiphy));
+	dev_info(dev->dev,
+			 "WED dma reset 1\n");
 }
 
 int mt7915_dma_reset(struct mt7915_dev *dev, bool force)
@@ -662,17 +660,15 @@ int mt7915_dma_reset(struct mt7915_dev *dev, bool force)
 	{
 		mtk_wed_device_dma_reset(wed);
 		// MWB
-		dev_info(dev->mt76.dev,
-				 "%s indicated WED dma reset 2\n",
-				 wiphy_name(dev->mt76.hw->wiphy));
+		dev_info(dev->dev,
+				 "WED dma reset 2\n");
 	}
 
 	mt7915_dma_disable(dev, force);
 	mt7915_dma_wed_reset(dev);
 	// MWB
-	dev_info(dev->mt76.dev,
-			 "%s indicated WED reset 1\n",
-			 wiphy_name(dev->mt76.hw->wiphy));
+	dev_info(dev->dev,
+			 "WED reset 1\n");
 
 	/* reset hw queues */
 	for (i = 0; i < __MT_TXQ_MAX; i++)
@@ -703,9 +699,8 @@ int mt7915_dma_reset(struct mt7915_dev *dev, bool force)
 		mt76_rmw(dev, MT_WFDMA0_EXT0_CFG, MT_WFDMA0_EXT0_RXWB_KEEP,
 				 MT_WFDMA0_EXT0_RXWB_KEEP);
 		// MWB
-		dev_info(dev->mt76.dev,
-				 "%s indicated WED mt76_rmw\n",
-				 wiphy_name(dev->mt76.hw->wiphy));
+		dev_info(dev->dev,
+				 "WED mt76_rmw\n");
 	}
 
 	mt7915_dma_enable(dev);
