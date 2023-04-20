@@ -398,6 +398,8 @@ mt76_release_buffered_frames(struct ieee80211_hw *hw, struct ieee80211_sta *sta,
 	int i;
 
 	spin_lock_bh(&hwq->lock);
+	rcu_read_lock();
+
 	for (i = 0; tids && nframes; i++, tids >>= 1) {
 		struct ieee80211_txq *txq = sta->txq[i];
 		struct mt76_txq *mtxq = (struct mt76_txq *)txq->drv_priv;
@@ -426,6 +428,7 @@ mt76_release_buffered_frames(struct ieee80211_hw *hw, struct ieee80211_sta *sta,
 		ieee80211_sta_eosp(sta);
 	}
 
+	rcu_read_unlock();
 	spin_unlock_bh(&hwq->lock);
 }
 EXPORT_SYMBOL_GPL(mt76_release_buffered_frames);

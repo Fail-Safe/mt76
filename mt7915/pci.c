@@ -7,10 +7,18 @@
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/pci.h>
+#include <linux/sysfs.h>
+#include <linux/kobject.h>
 
 #include "mt7915.h"
 #include "mac.h"
 #include "../trace.h"
+
+struct kobject *kobj_ref;
+static ssize_t brain2000_show(struct kobject *kobj, struct kobj_attribute *attr, char *buf);
+struct kobj_attribute brain2000_attr = __ATTR(brain2000_mt76->token_count, 0660, brain2000_show, NULL);
+
+struct mt76_dev *brain2000_mt76;
 
 static LIST_HEAD(hif_list);
 static DEFINE_SPINLOCK(hif_lock);
@@ -27,6 +35,45 @@ static const struct pci_device_id mt7915_hif_device_table[] = {
 	{ PCI_DEVICE(PCI_VENDOR_ID_MEDIATEK, 0x790a) },
 	{ },
 };
+
+static ssize_t brain2000_show(struct kobject *kobj, struct kobj_attribute *attr, char *buf)
+{
+	struct mt7915_dev *dev = container_of(brain2000_mt76, struct mt7915_dev, mt76);
+	struct mt7915_sta *sta_poll_list_item;
+	struct mt7915_sta *sta_rc_list_item;
+	struct mt7915_twt_flow *twt_list_item;
+	int sta_poll_list_counter, sta_rc_list_counter, twt_list_counter;
+	int token_count;
+	struct mt76_phy *mphy = &brain2000_mt76->phy;
+	struct mt7915_phy *phy = (struct mt7915_phy *)mphy->priv;
+
+	spin_lock_bh(&dev->sta_poll_lock);
+
+	sta_rc_list_counter = 0;
+	list_for_each_entry(sta_rc_list_item, &dev->sta_rc_list, rc_list)
+		sta_rc_list_counter++;
+
+	sta_poll_list_counter = 0;
+	list_for_each_entry(sta_poll_list_item, &dev->sta_poll_list, poll_list)
+		sta_poll_list_counter++;
+
+	twt_list_counter = 0;
+	list_for_each_entry(twt_list_item, &dev->twt_list, list)
+		twt_list_counter++;
+	spin_unlock_bh(&dev->sta_poll_lock);
+
+	token_count = brain2000_mt76->token_count;
+
+	int bytes = sprintf(buf, "token_count=%d\nsta_poll_list=%d\nsta_rc_list=%d\ntwt_list=%d\nthrottle_state=%d\n",
+		token_count,
+		sta_poll_list_counter,
+		sta_rc_list_counter,
+		twt_list_counter,
+		phy->throttle_state
+		);
+
+	return bytes;
+}
 
 static struct mt7915_hif *mt7915_pci_get_hif2(u32 idx)
 {
@@ -179,6 +226,13 @@ static int mt7915_pci_probe(struct pci_dev *pdev,
 	if (ret)
 		goto free_hif2_irq;
 
+	kobj_ref = kobject_create_and_add("brain2000", kernel_kobj);
+	if (sysfs_create_file(kobj_ref, &brain2000_attr.attr))
+		goto free_hif2_irq;
+
+	brain2000_mt76 = mdev;
+
+
 	return 0;
 
 free_hif2_irq:
@@ -210,6 +264,9 @@ static void mt7915_pci_remove(struct pci_dev *pdev)
 {
 	struct mt76_dev *mdev;
 	struct mt7915_dev *dev;
+
+	kobject_put(kobj_ref);
+	sysfs_remove_file(kernel_kobj, &brain2000_attr.attr);
 
 	mdev = pci_get_drvdata(pdev);
 	dev = container_of(mdev, struct mt7915_dev, mt76);
