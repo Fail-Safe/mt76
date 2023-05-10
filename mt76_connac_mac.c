@@ -949,6 +949,9 @@ int mt76_connac2_reverse_frag0_hdr_trans(struct ieee80211_vif *vif,
 	if (!(le32_to_cpu(rxd[1]) & MT_RXD1_NORMAL_GROUP_4))
 		return -EINVAL;
 
+	if (!status->wcid || !status->wcid->sta)
+		return -EINVAL;
+
 	sta = container_of((void *)status->wcid, struct ieee80211_sta, drv_priv);
 
 	/* store the info from RXD and ethhdr to avoid being overridden */

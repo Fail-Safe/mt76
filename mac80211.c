@@ -1266,8 +1266,10 @@ mt76_check_sta(struct mt76_dev *dev, struct sk_buff *skb)
 
 	mt76_airtime_check(dev, skb);
 
-	if (!wcid || !wcid->sta)
+	if (!wcid || !wcid->sta) {
+		status->wcid = NULL;
 		return;
+	}
 
 	sta = container_of((void *)wcid, struct ieee80211_sta, drv_priv);
 
@@ -1321,7 +1323,7 @@ void mt76_rx_complete(struct mt76_dev *dev, struct sk_buff_head *frames,
 	struct sk_buff *skb, *tmp;
 	LIST_HEAD(list);
 
-	spin_lock(&dev->rx_lock);
+	spin_lock_bh(&dev->rx_lock);
 	while ((skb = __skb_dequeue(frames)) != NULL) {
 		struct sk_buff *nskb = skb_shinfo(skb)->frag_list;
 
@@ -1340,7 +1342,7 @@ void mt76_rx_complete(struct mt76_dev *dev, struct sk_buff_head *frames,
 			ieee80211_rx_list(hw, sta, skb, &list);
 		}
 	}
-	spin_unlock(&dev->rx_lock);
+	spin_unlock_bh(&dev->rx_lock);
 
 	if (!napi) {
 		netif_receive_skb_list(&list);
@@ -1472,6 +1474,9 @@ void mt76_sta_pre_rcu_remove(struct ieee80211_hw *hw, struct ieee80211_vif *vif,
 	struct mt76_wcid *wcid = (struct mt76_wcid *)sta->drv_priv;
 
 	mutex_lock(&dev->mutex);
+	spin_lock_bh(&dev->rx_lock);
+	wcid->sta = 0;
+	spin_unlock_bh(&dev->rx_lock);
 	spin_lock_bh(&dev->status_lock);
 	rcu_assign_pointer(dev->wcid[wcid->idx], NULL);
 	spin_unlock_bh(&dev->status_lock);
