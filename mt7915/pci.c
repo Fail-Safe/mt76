@@ -46,6 +46,7 @@ static ssize_t brain2000_show(struct kobject *kobj, struct kobj_attribute *attr,
 	int token_count;
 	struct mt76_phy *mphy = &brain2000_mt76->phy;
 	struct mt7915_phy *phy = (struct mt7915_phy *)mphy->priv;
+	int bytes;
 
 	spin_lock_bh(&dev->sta_poll_lock);
 
@@ -64,7 +65,7 @@ static ssize_t brain2000_show(struct kobject *kobj, struct kobj_attribute *attr,
 
 	token_count = brain2000_mt76->token_count;
 
-	int bytes = sprintf(buf, "token_count=%d\nsta_poll_list=%d\nsta_rc_list=%d\ntwt_list=%d\nthrottle_state=%d\n",
+	bytes = sprintf(buf, "token_count=%d\nsta_poll_list=%d\nsta_rc_list=%d\ntwt_list=%d\nthrottle_state=%d\n",
 		token_count,
 		sta_poll_list_counter,
 		sta_rc_list_counter,
